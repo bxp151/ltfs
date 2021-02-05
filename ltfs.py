@@ -7,7 +7,6 @@ import plotly.express as px
 from plotly.offline import plot 
 import numpy as np
 import kaleido 
-import pickle
 
 from sklearn.preprocessing import OneHotEncoder
 from sklearn.model_selection import StratifiedShuffleSplit, cross_val_score, \
@@ -27,14 +26,11 @@ from sklearn.inspection import permutation_importance
 HOME_DIR = '/Users/bxp151/ml/ltfs'
 DATA_DIR = '/data'
 IMG_DIR = '/images'
-PICKLE_DIR = '/pickles'
 
 
 if not os.path.exists("images"):
     os.mkdir(HOME_DIR + IMG_DIR)
     
-if not os.path.exists("pickles"):
-    os.mkdir(HOME_DIR + PICKLE_DIR)  
     
     
 pd.set_option('display.expand_frame_repr', False)
@@ -128,8 +124,7 @@ def base_cv(estimator):
 #%% Baseline Models
 
 '''
-Gradient Boost cv score of 0.6237614889712806 would land 551 out of 1328 on 
-the leaderboard.  Will continue with adaboost, gradient boost and xgboost for
+Will continue with adaboost, gradient boost and xgboost for
 the next set of evaluations
 '''
 
@@ -146,7 +141,8 @@ base04_ada = base_cv(AdaBoostClassifier(random_state=42))
 base05_gb = base_cv(GradientBoostingClassifier(random_state=42))
 
 # XGBoost: 0.6190087582124482
-base06_xgb = base_cv(xgbc.XGBClassifier(use_label_encoder=False, random_state=42))
+base06_xgb = base_cv(xgbc.XGBClassifier(use_label_encoder=False, random_state=42, 
+                                        eval_metric='logloss'))
 
 # Nueral Network
 base07_nn = base_cv(MLPClassifier(max_iter=1000, random_state=42))
@@ -443,15 +439,6 @@ all_pipe = FeatureUnion([
 
 #%% Gradient Boost 
 
-'''
-This section takes a long time to run so the pickled objects are loaded instead
-Load gb_inner, gb_outer, gb_inner_fit
-'''
-gb_outer = pickle.load(open(HOME_DIR + PICKLE_DIR + '/gb_outer.obj', 'rb'))
-gb_inner = pickle.load(open(HOME_DIR + PICKLE_DIR + '/gb_inner_fit.obj', 'rb'))
-
-'''
-
 # tuning parameters
 gb_params = {'learning_rate': [0.15,0.1],
           'n_estimators':  [100,300,500],
@@ -471,6 +458,7 @@ gb_inner = GridSearchCV(estimator = GradientBoostingClassifier(),
                             refit=True, 
                             cv=inner_cv)
 
+
 gb_outer = cross_val_score(estimator=gb_inner, 
                         X=all_pipe.fit_transform(trX_final), 
                         y=try_final, 
@@ -480,7 +468,7 @@ gb_outer = cross_val_score(estimator=gb_inner,
 gb_inner.fit(X=all_pipe.fit_transform(trX_final), 
              y=try_final)
 
-'''
+
 
 # 0.6590126418    202/1328
 gb_outer_auc = np.mean(gb_outer)
@@ -596,14 +584,7 @@ def target_shuffling(estimator, trainX, trainY, n_iters, scorefunc,
 
 #%% Execute target shuffling
 
-'''
-This section takes a long time to run so the pickled objects are loaded instead
-Load gb_scores
-'''
-gb_scores = pickle.load(open(HOME_DIR + PICKLE_DIR + '/gb_scores.obj', 'rb'))
 
-
-'''
 gb_inner.best_params_['random_state'] = 42 
 
 gb_estimator = GradientBoostingClassifier(**gb_inner.best_params_)
@@ -616,7 +597,7 @@ gb_scores = target_shuffling(estimator = gb_estimator,
                   random_state=0,
                   verbose=True,
                   scorefunc=roc_auc_score)
-'''
+
 
 #%% Plot feature importance results
 
