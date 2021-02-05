@@ -1,4 +1,4 @@
-# Predicting loan defaults for LTFS India
+# Predicting vehicle loan defaults for LTFS India
 
 </br>
 
