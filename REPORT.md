@@ -1,32 +1,35 @@
-# Predicting median housing prices in Boston
+# Predicting loan defaults for LTFS India
 
 </br>
 
 ## Objective
-The objective is to predict median home prices in Boston based on data published in 1978.  
+Financial institutions have incurred significant losses due to vehicle loans defaults. This has led to the restriction of vehicle loan underwriting and increased vehicle loan rejection rates.  A financial institution has hired you to help improve their credit scoring model by predicting the occurrence of vehicle loan defaults. 
 
-The data was provided by U.S. Census service and obtained from the [StatLib Archive](http://lib.stat.cmu.edu/datasets/boston).  It has been used extensively throughout the literature to benchmark algorithms. The data was originally published by Harrison, D. and Rubinfeld, D.L. `Hedonic prices and the demand for clean air', J. Environ. Economics & Management, vol.5, 81-102, 1978. 
+The data was provided by LTFS India during a [machine learning hackathon](https://datahack.analyticsvidhya.com/contest/ltfs-datascience-finhack-an-online-hackathon/).
 
 </br>
 
 
 ## Performance Measure
-In order to measure the effectiveness of the model in predicting housing prices, we used root mean square error (RMSE).  RMSE is calculated by: 
+The model performance will be measured using area under the curve (AUC).  AUC tells us how well the model seperates classes (non-default vs. default).  A score of 1 would mean the model perfectly seperates classes while a score of 0.5 would mean the model has no power to seperate classes.  
 
-1. calculating the sum the squared differences between the predicted (model) and observed (test set) values 
-2. dividing #1 by the numer of observations
-3. taking the square root of #2
+
 
 </br>
 
 
 ## Key Findings
 
-1. The final model achieved an RMSE of $2.8K on the training data and  $2.4K on the test (unseen) data
-              
-2. The most important features to predict price were
-	* **lstat**:  percentage of lower status of the population 
-	* **rm**: average numer of rooms per dwelling 
+1. The final model achieved an AUC of 0.66075 on the test data.         
+
+2. The most important features to predict default were
+
+	* **ltv --**  Proportion of loan amount to the value of the asset being borrowed against
+	* **perform.cns.score --** Credit bureau score 
+	* **average.acct.age --** Average age of customer loans
+	* **prop.account.age --** Ratio of average account age to credit history length
+	* **state.id.13 --** Loans disbursed in state 13
+
 
 ![](./images/fig1.png)
 
@@ -34,23 +37,22 @@ In order to measure the effectiveness of the model in predicting housing prices,
 ## Model Validation
 In order to validate the model, we used target shuffling which shows the probability that the model's results occured by chance. 
     
-    For 100K repititions:
+    For 200 repititions:
         
         1. Shuffle the target 
         2. Fit the best model to the shuffled target (shuffled model)
-        3. Make predictions using the shuffled model and score using RMSE
+        3. Make predictions using the shuffled model and score using AUC
         4. Plot the distribution of scores 
 </br>
 
-Since the best model performed better than every target permutation model, there is a 0 in 100K probability that the model's results occured by chance
+Since the best model performed better than every target permutation model, there is a 0 in 200 probability that the model's results occured by chance
 
 ![](./images/fig2.png)
 
 
-
 ## Approach
 
-The overall approach to building the pricing model:
+The overall approach to building the default prediction model:
 
 1. Initial data exploration
 2. Select modeling techniques
@@ -62,37 +64,64 @@ The overall approach to building the pricing model:
 
 </br>
 
-## Data Description
-
-The original data are 506 observations on 14 variables. cmedv is the target variable
-
-Variable | Description | Modeled
----- | ----------- | --- 
-crim |	per capita crime rate by town | yes
-zn |	proportion of residential land zoned for lots over 25,000 sq.ft | yes
-indus	| proportion of non-retail business acres per town | yes
-chas |	Charles River dummy variable (= 1 if tract bounds river; 0 otherwise) | yes
-nox	| nitric oxides concentration (parts per 10 million) | yes
-rm	| average number of rooms per dwelling | yes
-age	| proportion of owner-occupied units built prior to 1940 | yes
-dis	| weighted distances to five Boston employment centres | yes
-rad	| index of accessibility to radial highways | yes
-tax	| full-value property-tax rate per USD 10,000 | yes
-ptratio	| pupil-teacher ratio by town | yes
-b	1000(B - 0.63)^2 | where B is the proportion of blacks by town | yes
-lstat	| percentage of lower status of the population | yes
-medv	| median value of owner-occupied homes in USD 1000's | no
-cmedv	| corrected median value of owner-occupied homes in USD 1000's | yes
-town	| name of town | no
-tract	| census tract | no
-lon	| longitude of census tract | yes
-lat	| latitude of census tract | yes
-
-</br>
 
 ## Potential Model Improvements
 
-1. Interactions were not explicitly modeled.  The one way interactions between the top 5 important features could be enumerated to see if there is any improvement in the model.
-2. No feature selection was performed.  There is a possibility that we could achieve similiar model performance using a reduced set of features. 
+1. There was a possibility of engineering more features to achieve a better AUC score
+2. More powerful algorithms such as CatBoost or LightGBM could have been used to imnprove scoring
 
-</br>
+<br>
+<br>
+
+
+
+## Original Data Definitions
+
+The original data are 233154 observations on 40 variables. loan_default is the target variable
+
+Variable | Description
+---- | -----------  
+UniqueID | Identifier for customers 
+loan_default (target)| Payment default in the first EMI on due date 
+disbursed_amount | Amount of Loan disbursed 
+asset_cost | Cost of the Asset 
+ltv | Loan to Value of the asset 
+branch_id | Branch where the loan was disbursed 
+supplier_id | Vehicle Dealer where the loan was disbursed 
+manufacturer_id | "Vehicle manufacturer(Hero ,  Honda ,  TVS etc.)" 
+Current_pincode | Current pincode of the customer 
+Date.of.Birth | Date of birth of the customer 
+Employment.Type | Employment Type of the customer (Salaried/Self Employed) 
+DisbursalDate | Date of disbursement 
+State_ID | State of disbursement 
+Employee_code_ID | Employee of the organization who logged the disbursement 
+MobileNo_Avl_Flag | if Mobile no. was shared by the customer then flagged as 1 
+Aadhar_flag | if aadhar was shared by the customer then flagged as 1 
+PAN_flag | if pan was shared by the customer then flagged as 1 
+VoterID_flag | if voter  was shared by the customer then flagged as 1 
+Driving_flag | if DL was shared by the customer then flagged as 1 
+Passport_flag | if passport was shared by the customer then flagged as 1 
+PERFORM_CNS.SCORE | Bureau Score 
+PERFORM_CNS.SCORE.DESCRIPTION | Bureau score description 
+PRI.NO.OF.ACCTS | count of total loans taken by the customer at the time of disbursement 
+PRI.ACTIVE.ACCTS | count of active loans taken by the customer at the time of disbursement 
+PRI.OVERDUE.ACCTS | count of default accounts at the time of disbursement 
+PRI.CURRENT.BALANCE | total Principal outstanding amount of the active loans at the time of disbursement 
+PRI.SANCTIONED.AMOUNT | total amount that was sanctioned for all the loans at the time of disbursement 
+PRI.DISBURSED.AMOUNT | total amount that was disbursed for all the loans at the time of disbursement 
+SEC.NO.OF.ACCTS | count of total loans taken by the customer at the time of disbursement 
+SEC.ACTIVE.ACCTS | count of active loans taken by the customer at the time of disbursement 
+SEC.OVERDUE.ACCTS | count of default accounts at the time of disbursement 
+SEC.CURRENT.BALANCE | total Principal outstanding amount of the active loans at the time of disbursement 
+SEC.SANCTIONED.AMOUNT | total amount that was sanctioned for all the loans at the time of disbursement 
+SEC.DISBURSED.AMOUNT | total amount that was disbursed for all the loans at the time of disbursement 
+PRIMARY.INSTAL.AMT | EMI Amount of the primary loan 
+SEC.INSTAL.AMT | EMI Amount of the secondary loan 
+NEW.ACCTS.IN.LAST.SIX.MONTHS | New loans taken by the customer in last 6 months before the disbursment 
+DELINQUENT.ACCTS.IN.LAST.SIX.MONTHS | Loans defaulted in the last 6 months 
+AVERAGE.ACCT.AGE | Average loan tenure 
+CREDIT.HISTORY.LENGTH | Time since first loan 
+NO.OF_INQUIRIES | Enquries done by the customer for loans 
+PRI.Prefix (not a variable) | Primary accounts are those which the customer has taken for his personal use 
+SEC.Prefix (not a variable) | Secondary accounts are those which the customer act as a co-applicant or gaurantor 
+
