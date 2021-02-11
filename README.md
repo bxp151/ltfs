@@ -1,8 +1,18 @@
 # Predicting loan defaults for LTFS India
 
+## Objective
+Financial institutions have incurred significant losses due to vehicle loans defaults. This has led to the restriction of vehicle loan underwriting and increased vehicle loan rejection rates.  A financial institution has hired you to help improve their credit scoring model by predicting the occurrence of vehicle loan defaults. 
+
+The data was provided by LTFS India during a [machine learning hackathon](https://datahack.analyticsvidhya.com/contest/ltfs-datascience-finhack-an-online-hackathon/).
+
+
+<br>
+
 ## Executive summary
 
 The executive summary is located in [REPORT.md](./REPORT.md)
+
+<br>
 
 ## Usage Instructions
 
